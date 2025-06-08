@@ -1,6 +1,6 @@
 <template>
   <section>
-    <form @submit.prevent="addTask">
+    <form @submit.prevent="addTask" @keyup.enter="addTask">
       <input v-model="title" placeholder="Задача" />
       <select v-model="importance">
         <option disabled value="">Важность</option>

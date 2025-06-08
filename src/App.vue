@@ -1,6 +1,6 @@
 <template>
   <main>
-    <h1>🌌 Cosmic ToDo</h1>
+    <h1><strong>Cosmic</strong> ToDo</h1>
     <TodoList @update-table="updateTasks" />
     <TaskTable :tasks="allTasks" />
   </main>

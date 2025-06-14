@@ -9,9 +9,9 @@
     </thead>
     <tbody>
       <tr v-for="task in tasks" :key="task.id">
-        <td>{{ task.title }}</td>
-        <td>{{ task.importance }}</td>
-        <td>{{ task.urgency }}</td>
+        <td>{{ task.title || "—" }}</td>
+        <td>{{ task.importance || "—"}}</td>
+        <td>{{ task.urgency || "—"}}</td>
       </tr>
     </tbody>
   </table>

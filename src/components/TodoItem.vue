@@ -1,8 +1,10 @@
 <template>
   <div>
-    <span>{{ task.title }} | {{ task.importance }} | {{ task.urgency }}</span>
-    <button @click="editing = true">✏️</button>
-    <button @click="$emit('delete', task.id)">🗑️</button>
+    <span> {{ task.title }} </span>
+    <span v-if="task.importance"> | {{ task.importance }} </span>
+    <span v-if="task.urgency"> | {{ task.urgency }} </span>
+    <button @click="editing = true"> ✏️ </button>
+    <button @click="$emit('delete', task.id)"> 🗑️ </button>
 
     <div v-if="editing">
       <input v-model="editTitle" />
@@ -16,7 +18,7 @@
         <option>Средняя</option>
         <option>Высокая</option>
       </select>
-      <button @click="save">Сохранить</button>
+      <button @click="saveTask">Сохранить</button>
     </div>
   </div>
 </template>
@@ -31,7 +33,7 @@ let editTitle = ref(props.task.title);
 let editImportance = ref(props.task.importance);
 let editUrgency = ref(props.task.urgency);
 
-function save() {
+function saveTask() {
   editing.value = false;
   emit('edit', {
     ...props.task,

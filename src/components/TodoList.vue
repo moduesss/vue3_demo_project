@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import TodoItem from './TodoItem.vue';
 
 const emit = defineEmits(['update-table']);
@@ -38,15 +38,8 @@ onMounted(() => {
   fetchTasks();
 });
 
-function fetchTasks() {
-  setTimeout(() => {
-    tasks.value = [];
-    emit('update-table', tasks.value);
-  }, 500);
-}
-
 function addTask() {
-  if (!title.value || !importance.value || !urgency.value) return;
+  if (!title.value) return;
   const newTask = {
     id: Date.now(),
     title: title.value,
@@ -70,4 +63,17 @@ function editTask(updatedTask) {
   if (index !== -1) tasks.value[index] = updatedTask;
   emit('update-table', tasks.value);
 }
+
+function fetchTasks() {
+  const saved = localStorage.getItem('tasks');
+  tasks.value = saved ? JSON.parse(saved) : [];
+  emit('update-table', tasks.value);
+}
+
+watch(tasks, (newTasks) => {
+  localStorage.setItem('tasks', JSON.stringify(newTasks));
+}, { deep: true });
+
+
 </script>
+

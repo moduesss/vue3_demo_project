@@ -1,100 +1,43 @@
 <template>
-  <div class="todo-items-block">
-    <span>
-      {{ localTask.title }}
-      <template v-if="hasMeta">
-        <span v-if="localTask.importance"> | {{ localTask.importance }}</span>
-        <span v-if="localTask.urgency"> | {{ localTask.urgency }}</span>
-      </template>
-      <template v-else>
-        | — | —
-      </template>
-    </span>
-
+  <div>
+    <span>{{ task.title }} | {{ task.importance }} | {{ task.urgency }}</span>
     <button @click="editing = true">✏️</button>
-    <button @click="confirmDelete">🗑️</button>
+    <button @click="$emit('delete', task.id)">🗑️</button>
 
     <div v-if="editing">
-      <n-input v-model:value="editTitle" clearable />
-      <n-select v-model:value="editImportance" :options="priorityOptions" clearable />
-      <n-select v-model:value="editUrgency" :options="urgencyOptions" clearable />
+      <input v-model="editTitle" />
+      <select v-model="editImportance">
+        <option>Низкая</option>
+        <option>Средняя</option>
+        <option>Высокая</option>
+      </select>
+      <select v-model="editUrgency">
+        <option>Низкая</option>
+        <option>Средняя</option>
+        <option>Высокая</option>
+      </select>
       <button @click="save">Сохранить</button>
     </div>
   </div>
 </template>
 
 <script setup>
-
-import { ref, watch, computed, inject } from 'vue';
-
+import { ref } from 'vue';
 const props = defineProps(['task']);
-const emit = defineEmits(['edit', 'delete']);
+const emit = defineEmits(['edit']);
 
-const openModal = inject('openModal');
-
-const localTask = ref({ ...props.task });
-
-watch(
-    () => props.task,
-    (newVal) => {
-      localTask.value = { ...newVal };
-    },
-    { immediate: true, deep: true }
-);
-
-const editing = ref(false);
-const editTitle = ref('');
-const editImportance = ref('');
-const editUrgency = ref('');
-
-watch(
-    () => props.task,
-    (newTask) => {
-      editTitle.value = newTask.title;
-      editImportance.value = newTask.importance;
-      editUrgency.value = newTask.urgency;
-    },
-    { immediate: true, deep: true }
-);
-
-const priorityOptions = [
-  { label: 'Низкая', value: 'Низкая' },
-  { label: 'Средняя', value: 'Средняя' },
-  { label: 'Высокая', value: 'Высокая' }
-];
-
-const urgencyOptions = [
-  { label: 'Не срочно', value: 'Не срочно' },
-  { label: 'Скоро', value: 'Скоро' },
-  { label: 'Срочно', value: 'Срочно' }
-];
-
-const hasMeta = computed(() => {
-  return localTask.value.importance || localTask.value.urgency;
-});
+let editing = ref(false);
+let editTitle = ref(props.task.title);
+let editImportance = ref(props.task.importance);
+let editUrgency = ref(props.task.urgency);
 
 function save() {
   editing.value = false;
-  const updated = {
-    ...localTask.value,
+  emit('edit', {
+    ...props.task,
     title: editTitle.value,
     importance: editImportance.value,
     urgency: editUrgency.value
-  };
-  emit('edit', updated);
-}
-
-function confirmDelete() {
-  if (!openModal) {
-    emit('delete', localTask.value.id);
-    return;
-  }
-
-  openModal('Вы действительно хотите удалить эту задачу?').then(confirmed => {
-    if (confirmed) {
-      emit('delete', localTask.value.id);
-    }
   });
 }
-
 </script>

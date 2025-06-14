@@ -1,31 +1,20 @@
 <template>
   <section>
     <form @submit.prevent="addTask" @keyup.enter="addTask">
-
-      <n-input
-          v-model:value="title"
-          placeholder="Задача"
-          class="input"
-          clearable
-      />
-
-      <n-select
-          v-model:value="importance"
-          :options="importanceOptions"
-          placeholder="Важность"
-          class="input"
-          clearable
-      />
-
-      <n-select
-          v-model:value="urgency"
-          :options="urgencyOptions"
-          placeholder="Срочность"
-          class="input"
-          clearable
-      />
-
-      <button type="submit" class="submit-btn">Добавить</button>
+      <input v-model="title" placeholder="Задача" />
+      <select v-model="importance">
+        <option disabled value="">Важность</option>
+        <option>Низкая</option>
+        <option>Средняя</option>
+        <option>Высокая</option>
+      </select>
+      <select v-model="urgency">
+        <option disabled value="">Срочность</option>
+        <option>Низкая</option>
+        <option>Средняя</option>
+        <option>Высокая</option>
+      </select>
+      <button type="submit">Добавить</button>
     </form>
 
     <div v-for="task in tasks" :key="task.id">
@@ -35,54 +24,50 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useStore } from 'vuex';
-import { NInput, NSelect } from 'naive-ui';
+import { ref, onMounted } from 'vue';
 import TodoItem from './TodoItem.vue';
 
-const store = useStore();
+const emit = defineEmits(['update-table']);
 
-const title = ref('');
-const importance = ref('');
-const urgency = ref('');
+let title = ref('');
+let importance = ref('');
+let urgency = ref('');
+let tasks = ref([]);
 
-const importanceOptions = [
-  { label: 'Низкая', value: 'Низкая' },
-  { label: 'Средняя', value: 'Средняя' },
-  { label: 'Высокая', value: 'Высокая' }
-];
+onMounted(() => {
+  fetchTasks();
+});
 
-const urgencyOptions = [
-  { label: 'Не срочно', value: 'Не срочно' },
-  { label: 'Скоро', value: 'Скоро' },
-  { label: 'Срочно', value: 'Срочно' }
-];
-
-// Vuex getter
-const tasks = computed(() => store.getters.allTasks);
+function fetchTasks() {
+  setTimeout(() => {
+    tasks.value = [];
+    emit('update-table', tasks.value);
+  }, 500);
+}
 
 function addTask() {
-  if (!title.value.trim()) return;
-
+  if (!title.value || !importance.value || !urgency.value) return;
   const newTask = {
     id: Date.now(),
     title: title.value,
     importance: importance.value,
     urgency: urgency.value
   };
-
-  store.commit('addTask', newTask);
-
+  tasks.value.push(newTask);
+  emit('update-table', tasks.value);
   title.value = '';
   importance.value = '';
   urgency.value = '';
 }
 
 function deleteTask(id) {
-  store.commit('deleteTask', id);
+  tasks.value = tasks.value.filter(t => t.id !== id);
+  emit('update-table', tasks.value);
 }
 
 function editTask(updatedTask) {
-  store.commit('updateTask', updatedTask);
+  const index = tasks.value.findIndex(t => t.id === updatedTask.id);
+  if (index !== -1) tasks.value[index] = updatedTask;
+  emit('update-table', tasks.value);
 }
 </script>

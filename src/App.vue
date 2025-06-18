@@ -1,19 +1,10 @@
 <template>
-  <main>
-    <h1><strong>Cosmic</strong> ToDo</h1>
-    <TodoList @update-table="updateTasks" />
-    <TaskTable :tasks="allTasks" />
-  </main>
+  <div id="app">
+    <Navbar />
+    <router-view />
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import TodoList from './components/TodoList.vue';
-import TaskTable from './components/TaskTable.vue';
-
-const allTasks = ref([]);
-
-function updateTasks(tasks) {
-  allTasks.value = tasks;
-}
+import Navbar from './components/navbar.vue';
 </script>

@@ -1,4 +1,5 @@
 <template>
+
   <section>
     <form @submit.prevent="addTask" @keyup.enter="addTask">
       <input v-model="title" placeholder="Задача" />
@@ -24,7 +25,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, watch} from 'vue';
+import {ref, onMounted, watch, computed} from 'vue';
 import TodoItem from './TodoItem.vue';
 
 const emit = defineEmits(['update-table']);
@@ -74,6 +75,18 @@ watch(tasks, (newTasks) => {
   localStorage.setItem('tasks', JSON.stringify(newTasks));
 }, { deep: true });
 
+const formattedTasks = computed(() =>
+    rawTasks.value.map(task => {
+      return {
+        ...task,
+        displayText: [task.title, task.importance, task.urgency]
+            .filter(Boolean)
+            .join(' | '),
+        displayImportance: task.importance || '–',
+        displayUrgency: task.urgency || '–'
+      };
+    })
+);
 
 </script>
 

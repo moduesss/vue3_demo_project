@@ -4,27 +4,6 @@
 
     <TodoItem v-if="editingTask" :task="editingTask" @submit="handleSubmit" />
     <TodoList @update-table="updateTasks" />
-    <TaskTable>
-      <!-- Кастомные заголовки -->
-      <template #header-title>
-        <strong>Задача</strong>
-      </template>
-      <template #header-importance>
-        <span>Важность</span>
-      </template>
-
-      <template #cell="{ task, field }">
-    <span v-if="field === 'importance' && task.importance === 'Высокая'">
-      🔥 {{ task.importance }}
-    </span>
-        <span v-else-if="field === 'urgency' && task.urgency === 'Срочно'">
-      ⚠️ {{ task.urgency }}
-    </span>
-        <span v-else>
-      {{ task[field] || '—' }}
-    </span>
-      </template>
-    </TaskTable>
   </main>
 </template>
 

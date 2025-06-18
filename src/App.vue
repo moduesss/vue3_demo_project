@@ -1,21 +1,19 @@
 <template>
-
-  <n-config-provider :theme-overrides="themeOverrides">
-    <ModalProvider>
-  <div id="app">
-    <Navbar />
-    <router-view />
-  </div>
-    </ModalProvider>
-  </n-config-provider>
+  <main>
+    <h1><strong>Cosmic</strong> ToDo</h1>
+    <TodoList @update-table="updateTasks" />
+    <TaskTable :tasks="allTasks" />
+  </main>
 </template>
 
 <script setup>
-import ModalProvider from './components/ModalProvider.vue';
-import Navbar from './components/navbar.vue';
-import { NConfigProvider } from "naive-ui";
-import { themeOverrides } from "./assets/theme.js"
+import { ref } from 'vue';
+import TodoList from './components/TodoList.vue';
+import TaskTable from './components/TaskTable.vue';
 
+const allTasks = ref([]);
 
-
+function updateTasks(tasks) {
+  allTasks.value = tasks;
+}
 </script>

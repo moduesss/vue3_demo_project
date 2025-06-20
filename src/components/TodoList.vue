@@ -1,7 +1,7 @@
 <template>
-
   <section>
-    <form @submit.prevent="addTask">
+    <form @submit.prevent="addTask" @keyup.enter="addTask">
+
       <n-input
           v-model:value="title"
           placeholder="Задача"
@@ -35,11 +35,16 @@
 </template>
 
 <script setup>
-import {ref, onMounted, watch, computed} from 'vue';
+import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
 import { NInput, NSelect } from 'naive-ui';
 import TodoItem from './TodoItem.vue';
 
-const emit = defineEmits(['update-table']);
+const store = useStore();
+
+const title = ref('');
+const importance = ref('');
+const urgency = ref('');
 
 const importanceOptions = [
   { label: 'Низкая', value: 'Низкая' },
@@ -53,69 +58,31 @@ const urgencyOptions = [
   { label: 'Срочно', value: 'Срочно' }
 ];
 
-let title = ref('');
-let importance = ref('');
-let urgency = ref('');
-let tasks = ref([]);
-
-onMounted(() => {
-  fetchTasks();
-});
+// Vuex getter
+const tasks = computed(() => store.getters.allTasks);
 
 function addTask() {
-  if (!title.value) return;
+  if (!title.value.trim()) return;
+
   const newTask = {
     id: Date.now(),
     title: title.value,
     importance: importance.value,
     urgency: urgency.value
   };
-  tasks.value.push(newTask);
-  emit('update-table', tasks.value);
+
+  store.commit('addTask', newTask);
+
   title.value = '';
   importance.value = '';
   urgency.value = '';
 }
 
 function deleteTask(id) {
-  tasks.value = tasks.value.filter(t => t.id !== id);
-  emit('update-table', tasks.value);
+  store.commit('deleteTask', id);
 }
 
 function editTask(updatedTask) {
-  const index = tasks.value.findIndex(t => t.id === updatedTask.id);
-  if (index !== -1) tasks.value[index] = updatedTask;
-  emit('update-table', tasks.value);
+  store.commit('updateTask', updatedTask);
 }
-
-function fetchTasks() {
-  const saved = localStorage.getItem('tasks');
-  tasks.value = saved ? JSON.parse(saved) : [];
-  emit('update-table', tasks.value);
-}
-
-watch(tasks, (newTasks) => {
-  localStorage.setItem('tasks', JSON.stringify(newTasks));
-}, { deep: true });
-
-const formattedTasks = computed(() =>
-    rawTasks.value.map(task => {
-      return {
-        ...task,
-        displayText: [task.title, task.importance, task.urgency]
-            .filter(Boolean)
-            .join(' | '),
-        displayImportance: task.importance || '–',
-        displayUrgency: task.urgency || '–'
-      };
-    })
-);
-
 </script>
-
-<style scoped>
-  form {
-    margin: 10px 0;
-  }
-</style>
-

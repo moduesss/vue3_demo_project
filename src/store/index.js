@@ -11,39 +11,34 @@ export default createStore({
         addTask(state, task) {
             state.tasks.push(task);
         },
-        deleteTask(state, id) {
-            state.tasks = state.tasks.filter(t => t.id !== id);
-        },
-        editTask(state, updatedTask) {
+        updateTask(state, updatedTask) {
             const index = state.tasks.findIndex(t => t.id === updatedTask.id);
             if (index !== -1) {
                 state.tasks[index] = updatedTask;
             }
+        },
+        deleteTask(state, taskId) {
+            state.tasks = state.tasks.filter(t => t.id !== taskId);
         }
     },
     actions: {
         loadTasks({ commit }) {
-            const saved = localStorage.getItem('tasks');
-            const tasks = saved ? JSON.parse(saved) : [];
-            commit('setTasks', tasks);
-        },
-        addTask({ commit, dispatch }, task) {
-            commit('addTask', task);
-            dispatch('saveTasks');
-        },
-        deleteTask({ commit, dispatch }, id) {
-            commit('deleteTask', id);
-            dispatch('saveTasks');
-        },
-        editTask({ commit, dispatch }, updatedTask) {
-            commit('editTask', updatedTask);
-            dispatch('saveTasks');
-        },
-        saveTasks({ state }) {
-            localStorage.setItem('tasks', JSON.stringify(state.tasks));
+            const stored = localStorage.getItem('tasks');
+            if (stored) {
+                commit('setTasks', JSON.parse(stored));
+            }
         }
     },
     getters: {
-        tasks: state => state.tasks
-    }
+        allTasks: state => state.tasks
+    },
+    plugins: [
+        store => {
+            store.subscribe((mutation, state) => {
+                if (['addTask', 'updateTask', 'deleteTask', 'setTasks'].includes(mutation.type)) {
+                    localStorage.setItem('tasks', JSON.stringify(state.tasks));
+                }
+            });
+        }
+    ]
 });

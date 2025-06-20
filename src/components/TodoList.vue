@@ -1,21 +1,31 @@
 <template>
 
   <section>
-    <form @submit.prevent="addTask" @keyup.enter="addTask">
-      <input v-model="title" placeholder="Задача" />
-      <select v-model="importance">
-        <option disabled value="">Важность</option>
-        <option>Низкая</option>
-        <option>Средняя</option>
-        <option>Высокая</option>
-      </select>
-      <select v-model="urgency">
-        <option disabled value="">Срочность</option>
-        <option>Низкая</option>
-        <option>Средняя</option>
-        <option>Высокая</option>
-      </select>
-      <button type="submit">Добавить</button>
+    <form @submit.prevent="addTask">
+      <n-input
+          v-model:value="title"
+          placeholder="Задача"
+          class="input"
+          clearable
+      />
+
+      <n-select
+          v-model:value="importance"
+          :options="importanceOptions"
+          placeholder="Важность"
+          class="input"
+          clearable
+      />
+
+      <n-select
+          v-model:value="urgency"
+          :options="urgencyOptions"
+          placeholder="Срочность"
+          class="input"
+          clearable
+      />
+
+      <button type="submit" class="submit-btn">Добавить</button>
     </form>
 
     <div v-for="task in tasks" :key="task.id">
@@ -26,9 +36,22 @@
 
 <script setup>
 import {ref, onMounted, watch, computed} from 'vue';
+import { NInput, NSelect } from 'naive-ui';
 import TodoItem from './TodoItem.vue';
 
 const emit = defineEmits(['update-table']);
+
+const importanceOptions = [
+  { label: 'Низкая', value: 'Низкая' },
+  { label: 'Средняя', value: 'Средняя' },
+  { label: 'Высокая', value: 'Высокая' }
+];
+
+const urgencyOptions = [
+  { label: 'Не срочно', value: 'Не срочно' },
+  { label: 'Скоро', value: 'Скоро' },
+  { label: 'Срочно', value: 'Срочно' }
+];
 
 let title = ref('');
 let importance = ref('');
@@ -89,4 +112,10 @@ const formattedTasks = computed(() =>
 );
 
 </script>
+
+<style scoped>
+  form {
+    margin: 10px 0;
+  }
+</style>
 

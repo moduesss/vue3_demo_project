@@ -1,60 +1,84 @@
 <template>
   <div class="todo-items-block">
     <span>
-      {{ task.title }}
+      {{ localTask.title }}
       <template v-if="hasMeta">
-        |
-        <span v-if="task.importance">{{ task.importance }}</span>
-        <span v-if="task.importance && task.urgency"> | </span>
-        <span v-if="task.urgency">{{ task.urgency }}</span>
+        <span v-if="localTask.importance">| {{ localTask.importance }}</span>
+        <span v-if="localTask.urgency">| {{ localTask.urgency }}</span>
+      </template>
+      <template v-else>
+        | — | —
       </template>
     </span>
 
     <button @click="editing = true">✏️</button>
-    <button @click="$emit('delete', task.id)">🗑️</button>
+    <button @click="$emit('delete', localTask.id)">🗑️</button>
 
     <div v-if="editing">
-      <input v-model="editTitle" />
-      <select v-model="editImportance">
-        <option value="">–</option>
-        <option>Низкая</option>
-        <option>Средняя</option>
-        <option>Высокая</option>
-      </select>
-      <select v-model="editUrgency">
-        <option value="">–</option>
-        <option>Низкая</option>
-        <option>Средняя</option>
-        <option>Высокая</option>
-      </select>
+      <n-input v-model:value="editTitle" clearable />
+      <n-select v-model:value="editImportance" :options="priorityOptions" clearable />
+      <n-select v-model:value="editUrgency" :options="urgencyOptions" clearable />
       <button @click="save">Сохранить</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps(['task']);
 const emit = defineEmits(['edit']);
 
-const editing = ref(false);
-const editTitle = ref(props.task.title);
-const editImportance = ref(props.task.importance);
-const editUrgency = ref(props.task.urgency);
+const localTask = ref({ ...props.task });
 
-// Вычисляем, есть ли вообще значения важности или срочности
+watch(
+    () => props.task,
+    (newVal) => {
+      localTask.value = { ...newVal };
+    },
+    { immediate: true, deep: true }
+);
+
+const editing = ref(false);
+const editTitle = ref('');
+const editImportance = ref('');
+const editUrgency = ref('');
+
+watch(
+    () => props.task,
+    (newTask) => {
+      editTitle.value = newTask.title;
+      editImportance.value = newTask.importance;
+      editUrgency.value = newTask.urgency;
+    },
+    { immediate: true, deep: true }
+);
+
+const priorityOptions = [
+  { label: 'Низкая', value: 'Низкая' },
+  { label: 'Средняя', value: 'Средняя' },
+  { label: 'Высокая', value: 'Высокая' }
+];
+
+const urgencyOptions = [
+  { label: 'Не срочно', value: 'Не срочно' },
+  { label: 'Скоро', value: 'Скоро' },
+  { label: 'Срочно', value: 'Срочно' }
+];
+
 const hasMeta = computed(() => {
-  return props.task.importance || props.task.urgency;
+  return localTask.value.importance || localTask.value.urgency;
 });
 
 function save() {
   editing.value = false;
-  emit('edit', {
-    ...props.task,
+  const updated = {
+    ...localTask.value,
     title: editTitle.value,
-    importance: editImportance.value || '',
-    urgency: editUrgency.value || ''
-  });
+    importance: editImportance.value,
+    urgency: editUrgency.value
+  };
+  emit('edit', updated);
 }
+
 </script>

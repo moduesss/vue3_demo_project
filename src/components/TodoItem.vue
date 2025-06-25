@@ -3,8 +3,8 @@
     <span>
       {{ localTask.title }}
       <template v-if="hasMeta">
-        <span v-if="localTask.importance">| {{ localTask.importance }}</span>
-        <span v-if="localTask.urgency">| {{ localTask.urgency }}</span>
+        <span v-if="localTask.importance"> | {{ localTask.importance }}</span>
+        <span v-if="localTask.urgency"> | {{ localTask.urgency }}</span>
       </template>
       <template v-else>
         | — | —
@@ -12,7 +12,7 @@
     </span>
 
     <button @click="editing = true">✏️</button>
-    <button @click="$emit('delete', localTask.id)">🗑️</button>
+    <button @click="confirmDelete">🗑️</button>
 
     <div v-if="editing">
       <n-input v-model:value="editTitle" clearable />
@@ -24,10 +24,13 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+
+import { ref, watch, computed, inject } from 'vue';
 
 const props = defineProps(['task']);
-const emit = defineEmits(['edit']);
+const emit = defineEmits(['edit', 'delete']);
+
+const openModal = inject('openModal');
 
 const localTask = ref({ ...props.task });
 
@@ -79,6 +82,19 @@ function save() {
     urgency: editUrgency.value
   };
   emit('edit', updated);
+}
+
+function confirmDelete() {
+  if (!openModal) {
+    emit('delete', localTask.value.id);
+    return;
+  }
+
+  openModal('Вы действительно хотите удалить эту задачу?').then(confirmed => {
+    if (confirmed) {
+      emit('delete', localTask.value.id);
+    }
+  });
 }
 
 </script>

@@ -8,15 +8,15 @@
   >
     <thead>
     <tr>
-      <th>Название</th>
-      <th>Важность</th>
-      <th>Срочность</th>
+      <th><slot name="header-title">Название</slot></th>
+      <th><slot name="header-importance">Важность</slot></th>
+      <th><slot name="header-urgency">Срочность</slot></th>
     </tr>
     </thead>
     <tbody>
     <tr v-for="(task, rowIndex) in tasks" :key="task.id">
       <td
-          v-for="(value, colIndex) in [task.title || '—', task.importance || '—', task.urgency || '—']"
+          v-for="(col, colIndex) in ['title', 'importance', 'urgency']"
           :key="colIndex"
           @mouseenter.capture="onCellEnter(rowIndex, colIndex)"
           @mouseleave="onCellLeave"
@@ -24,7 +24,15 @@
             cellHovered: rowIndex === hoveredRowIndex && colIndex === hoveredCellIndex
           }"
       >
-        {{ value }}
+        <slot
+            name="cell"
+            :task="task"
+            :row-index="rowIndex"
+            :col-index="colIndex"
+            :field="col"
+        >
+          {{ task[col] || '—' }}
+        </slot>
       </td>
     </tr>
     </tbody>
@@ -69,7 +77,7 @@ function onCellLeave() {
 </script>
 
 
-<style scoped>
+<style>
 
 .task-table {
   width: 100%;

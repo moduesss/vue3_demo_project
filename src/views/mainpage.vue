@@ -4,40 +4,32 @@
 
     <TodoItem v-if="editingTask" :task="editingTask" @submit="handleSubmit" />
     <TodoList @update-table="updateTasks" />
-    <TaskTable
-        :tasks="allTasks"
-        @edit-task="startEditing"
-        @delete-task="handleDelete"
-    />
+    <TaskTable>
+      <!-- Кастомные заголовки -->
+      <template #header-title>
+        <strong>Задача</strong>
+      </template>
+      <template #header-importance>
+        <span>Важность</span>
+      </template>
+
+      <template #cell="{ task, field }">
+    <span v-if="field === 'importance' && task.importance === 'Высокая'">
+      🔥 {{ task.importance }}
+    </span>
+        <span v-else-if="field === 'urgency' && task.urgency === 'Срочно'">
+      ⚠️ {{ task.urgency }}
+    </span>
+        <span v-else>
+      {{ task[field] || '—' }}
+    </span>
+      </template>
+    </TaskTable>
   </main>
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import TodoList from '../components/TodoList.vue';
 import TaskTable from '../components/TaskTable.vue';
 import TodoItem from "../components/TodoItem.vue";
-
-const allTasks = ref([]);
-const editingTask = ref(null);
-
-function updateTasks(tasks) {
-  allTasks.value = tasks;
-}
-
-function startEditing(task) {
-  editingTask.value = { ...task };
-}
-
-function handleSubmit(updatedTask) {
-  const index = allTasks.value.findIndex(t => t.id === updatedTask.id);
-  if (index !== -1) {
-    allTasks.value[index] = { ...updatedTask };
-  }
-  editingTask.value = null;
-}
-
-function handleDelete(id) {
-  allTasks.value = allTasks.value.filter(t => t.id !== id);
-}
 </script>

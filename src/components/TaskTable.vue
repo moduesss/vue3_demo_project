@@ -34,11 +34,11 @@
 
 <script setup>
 
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useStore } from 'vuex';
 
-const props = defineProps({
-  tasks: Array
-})
+const store = useStore();
+const tasks = computed(() => store.getters.allTasks);
 
 const isTableHovered = ref(false)
 const hoveredRowIndex = ref(null)
